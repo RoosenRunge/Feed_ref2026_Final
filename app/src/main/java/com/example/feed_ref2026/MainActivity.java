@@ -14,6 +14,8 @@ import androidx.navigation.NavController;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.feed_ref2026.databinding.ActivityMainBinding;
 
@@ -36,11 +38,12 @@ public class MainActivity extends AppCompatActivity {
 
     // #1.0 - Primeiramente vamos criar TextView  para exibir o conteúdo baixado.
     // #Vamos criar uma variável TextView para receber o conteúdo baixado
-    private TextView xmlTexView;
+    //private TextView xmlTexView;
 
     //1.1 - Vamos criar uma variável String que receberá o conteúdo do site.
     private String mFileContents;
-
+    // Parte 3# Parte 3# Declarando a variável RecyclerView
+    private RecyclerView mRecyclerView;
     private AppBarConfiguration appBarConfiguration;
 
     @Override
@@ -74,10 +77,18 @@ public class MainActivity extends AppCompatActivity {
 //                        .setAction("Action", null).show()
 //        );
         //1.2 - associando a variável à view no XML.
-        xmlTexView = (TextView) findViewById(R.id.textViewInicial);
+        //xmlTexView = (TextView) findViewById(R.id.textViewInicial);
 
         //1.5 chamada do metódo executeTask(url )para execução da task paralela
         executeTask("http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/topfreeapplications/limit=10/xml");
+
+        //    Recycler block
+        //3.1 Associando a a variável à RecyclerView no XML
+        mRecyclerView = findViewById(R.id.myreclycer);
+        //3.2 é interessante caso os itens de layout tenham tamanho fixo. Otimizar a implementação
+        mRecyclerView.setHasFixedSize(true);
+        //3.3 Associação de um gerenciador de Layout para a RecyclerView.
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
     // 1.3 - Vamos criar o metodo para realizar o download do feed.
     private String downloadXMLFile(String theUrl){
@@ -193,7 +204,20 @@ public class MainActivity extends AppCompatActivity {
             //1.6 - Inserindo o conteúdo baixado na caixa de texto.
             // Obs.Deve ser comentado na parte 2, quando é ativada a RecyclerView
 
-            xmlTexView.setText(mFileContents);
+            //xmlTexView.setText(mFileContents);
+            //Parte 2 parse application
+            //criando uma instância da classe parseApplication e disparando a mineração e vamos conferir no logcat
+
+            ParseApplications parseApplications = new ParseApplications(mFileContents);
+            parseApplications.process();
+
+            // Recycler block
+            //3.4 criação de uma instância do nosso adapter e passando o resultado da mineração do parse Application
+            //através do metodo getApplication que já retorna um array de application1
+            MyFirstAdapter mAdapter = new MyFirstAdapter(parseApplications.getApplications());
+            //3.5 linkando nossa RecyclerView com o adapter
+            mRecyclerView.setAdapter(mAdapter);
+
             return true;
         }
 
